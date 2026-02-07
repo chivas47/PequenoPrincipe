@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Pequeno Príncipe - Aprenda Português</title>
+
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⭐ O Pequeno Príncipe ⭐</h1>
+            <p class="subtitle">Aprenda Português com Antoine de Saint-Exupéry</p>
+        </header>
+
+        <div class="controls">
+            <select id="chapterSelect" onchange="changeChapter()">
+                <option value="1">Capítulo I - O Desenho da Jiboia</option>
+                <option value="2">Capítulo II - O Encontro no Deserto</option>
+                              <option value="3">Capítulo III - De Onde Ele Veio</option>
+                <option value="4">Capítulo IV - O Asteroide B-612</option>
+                  <option value="5">Capítulo V – Os Baobás </option>
+                                <option value="6">Capítulo VI - O Pôr do Sol </option>
+              <option value="7">Capítulo VII - A Rosa </option>
+              <option value="8">Capítulo VIII - O Amor </option>
+                <option value="9">Capítulo IX - A Partida </option>
+           <option value="10">Capítulo X - O Rei </option>
+     
+       <option value="11">Capítulo XI - O Vaidoso </option>
+          
+   <option value="12">Capítulo XII - O Bêbado</option>
+           
+   <option value="13">Capítulo XIII - O Homem De Negócios </option>
+          
+ <option value="14">Capítulo XIV - O Acendedor De Lampiões</option>
+           
+ <option value="15">Capítulo XV - O Geógrafo</option>
+           
+ <option value="16">Capítulo XVI - A Terra</option>
+            
+ <option value="17">Capítulo XVII - A Serpente</option>
+           
+ <option value="18">Capítulo XVIII - A Flor</option>
+         
+ <option value="19">Capítulo XIX - A Montanha</option>
+           
+ <option value="20">Capítulo XX - As Rosas</option>
+           
+ <option value="21">Capítulo XXI - A Raposa</option>
+           
+ <option value="22">Capítulo XXII - O Guarda-Agulhas</option>
+          
+ <option value="23">Capítulo XXIII - O Vendedor</option>
+            
+ <option value="24">Capítulo XXIV - O Poço</option>
+            
+ <option value="25">Capítulo XXV- A Água</option>
+           
+ <option value="26">Capítulo XXVI- A Despedida</option>
+            
+ <option value="27">Capítulo XXVII- A Estrela</option>
+             </select>
+
+
+          
+            <button class="btn btn-primary" onclick="toggleHelp()">
+                <span id="helpBtnText">🔍 Mostrar Ajuda</span>
+            </button>
+            <button class="btn btn-secondary" onclick="toggleQuizMode()">
+                📝 Modo Quiz
+            </button>
+            <button class="btn btn-secondary" onclick="showVocabulary()">
+                📚 Vocabulário
+            </button>
+        </div>
+
+        <div class="legend">
+            <h3>🎨 Legenda das Cores:</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="color-box substantivo"></div>
+                    <span>Substantivos</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box verbo"></div>
+                    <span>Verbos</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-item">
+                    <div class="color-box verbo"></div>
+                    <span>Advérbios</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box advebio"></div>
+                    <span>Adjetivos</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box pronome"></div>
+                    <span>Pronomes</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box preposicao"></div>
+                    <span>Preposições</span>
+                </div>
+            </div>
+        </div>
+      
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="wordCount">0</div>
+                <div class="stat-label">Palavras</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="wordsLearned">0</div>
+                <div class="stat-label">Aprendidas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="readingTime">0</div>
+                <div class="stat-label">Min. Leitura</div>
+            </div>
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div id="vocabularySection" class="vocabulary-list hidden">
+            <h2 style="text-align: center; color: #667eea;">📚 Vocabulário do Capítulo</h2>
+            <div id="vocabularyContent"></div>
+        </div>
+
+        <div class="content" id="textContent">
+        </div>
+    </div>
+
+ <link rel="stylesheet" href="styles.css">
+ <script src="scripts.js"></script>
+</body>
+</html>
