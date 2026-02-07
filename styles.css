@@ -1,0 +1,266 @@
+/* --- Importação de Fonte --- */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap');
+
+/* --- Reset e Prevenção de Scroll Lateral --- */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    background-color: #f2efe9;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Merriweather', 'Georgia', serif;
+    color: #2c2c2c;
+    min-height: 100vh;
+    padding: 10px;
+    line-height: 1.8;
+}
+
+/* --- Contentor Principal --- */
+.container {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto;
+    background: #fcfbf9; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+    border-radius: 4px;
+    border: 1px solid #e6e2dd;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Cabeçalho e Controlos (Seleção de Capítulos) --- */
+header {
+    padding: 40px 20px;
+    text-align: center;
+    border-bottom: 2px solid #e6e2dd;
+}
+
+h1 { font-size: 1.8em; color: #1a1a1a; margin-bottom: 5px; }
+.subtitle { font-family: sans-serif; font-size: 0.8em; text-transform: uppercase; color: #888; letter-spacing: 1px; }
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+/* Estilo elegante para botões e selects */
+.btn, select {
+    padding: 10px 16px;
+    border: 1px solid #d1d1d1;
+    background: #fff;
+    color: #444;
+    font-family: sans-serif;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.btn:hover, select:hover {
+    border-color: #999;
+    background: #f9f9f9;
+}
+
+select {
+    padding-right: 30px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px;
+}
+
+/* --- Área de Texto --- */
+.content {
+    padding: 40px 60px;
+    font-size: 19px;
+    text-align: justify;
+    word-wrap: break-word;
+}
+
+.paragrafo { display: block; margin-bottom: 1.5em; }
+
+.word {
+    position: relative;
+    cursor: pointer;
+    display: inline;
+    padding: 0 2px;
+    border-radius: 3px;
+}
+
+/* --- Cores de Marcação --- */
+.substantivo { background-color: rgba(33, 150, 243, 0.12); border-bottom: 2px solid #2196F3; }
+.verbo       { background-color: rgba(156, 39, 176, 0.12); border-bottom: 2px solid #9c27b0; }
+.adjetivo    { background-color: rgba(76, 175, 80, 0.12);  border-bottom: 2px solid #4caf50; }
+.pronome     { background-color: rgba(255, 152, 0, 0.12);  border-bottom: 2px solid #ff9800; }
+.conjuncao   { background-color: rgba(139, 195, 74, 0.12); border-bottom: 2px solid #8bc34a; }
+.advebio     { background-color: rgba(0, 150, 136, 0.12);  border-bottom: 2px solid #009688; }
+.preposicao  { background-color: rgba(233, 30, 99, 0.12);  border-bottom: 2px solid #e91e63; }
+.pontuacao   { background: transparent !important; border: none !important; }
+
+/* --- TOOLTIP DESKTOP --- */
+.tooltip {
+    visibility: hidden;
+    position: absolute;
+    background: #1a1a1a;
+    color: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    width: 260px;
+    z-index: 1000;
+    bottom: 125%; /* Acima da palavra */
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+    pointer-events: none;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+    line-height: 1.5;
+    border: 1px solid #333;
+}
+
+.tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -8px;
+    border: 8px solid transparent;
+    border-top-color: #1a1a1a;
+}
+
+.word:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip-title { color: #ffd54f; font-weight: 700; font-size: 1.15em; display: block; margin-bottom: 4px; font-family: 'Merriweather', serif; }
+.tooltip-type { color: #888; font-size: 0.7em; text-transform: uppercase; letter-spacing: 1.5px; font-weight: bold; }
+.tooltip-translation { border-top: 1px solid #333; margin-top: 10px; padding-top: 10px; font-style: italic; color: #ddd; display: block; }
+
+/* --- LEGENDA (ESTRUTURA BASE) --- */
+.legend {
+    background: #faf9f6;
+    padding: 20px;
+    margin: 20px 60px;
+    border: 1px solid #e6e2dd;
+    border-radius: 4px;
+}
+
+.legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    background: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.color-box { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+
+/* --- RESPONSIVIDADE MOBILE (FIXED) --- */
+@media (max-width: 768px) {
+    body { padding: 0; }
+    .container { border: none; box-shadow: none; border-radius: 0; }
+    
+    .content { 
+        padding: 30px 20px 120px 20px; 
+        font-size: 18px; 
+        text-align: left; 
+    }
+
+    /* Legenda em 3 colunas para caber Preposições sem sair do ecrã */
+    .legend { 
+        margin: 20px 10px; 
+        padding: 12px 8px; 
+    }
+    
+    .legend-items {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 8px;
+        width: 100%;
+    }
+
+    .legend-item { 
+        font-size: 10px; 
+        padding: 6px 2px;
+        flex-direction: column; /* Ícone em cima do texto se for muito estreito */
+        gap: 4px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    /* Tooltip Mobile (Painel Inferior Fixo) */
+    .word:hover .tooltip {
+        position: fixed;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        width: 100% !important;
+        transform: none !important;
+        background: #000 !important;
+        border-radius: 16px 16px 0 0;
+        padding: 25px;
+        opacity: 1;
+        visibility: visible;
+        z-index: 99999;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+        border: none;
+    }
+
+    .tooltip::after { display: none !important; }
+}
+
+/* --- Estatísticas --- */
+.stats { 
+    display: flex; 
+    justify-content: space-around; 
+    padding: 20px; 
+    background: #faf9f6; 
+    border-top: 1px solid #eee; 
+}
+.stat-item { text-align: center; }
+.stat-number { font-size: 1.4em; font-weight: bold; color: #4a4a4a; display: block; }
+.stat-label { font-size: 0.7em; color: #999; text-transform: uppercase; }
+
+.hidden { display: none; }
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2em;
+    color: #667eea;
+}
+
+#customText {
+    width: 100%;
+    height: 200px;
+    margin: 20px 0;
+    padding: 15px;
+    border: 2px solid #667eea;
+    border-radius: 10px;
+    font-size: 16px;
+}
