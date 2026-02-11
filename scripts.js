@@ -4849,6 +4849,14 @@ function createWordElement(wordData) {
 }
 
 function loadChapter(chapterNum) {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+        isPlaying = false;
+        const btn = document.getElementById('readAloudBtn');
+        btn.classList.remove('playing');
+        btn.textContent = 'Ler em Voz Alta';
+    }
     const rawChapter = rawChapters[chapterNum];
     
     // PROCESS TEXT ON THE FLY
@@ -4906,6 +4914,77 @@ function changeChapter() {
     loadChapter(currentChapter);
     hideVocabulary();
 }
+
+//SECÇÃO DE AUDIO
+// Variável global para o áudio
+let currentAudio = null;
+let isPlaying = false;
+
+// Função para ler em voz alta
+function toggleReadAloud() {
+    const btn = document.getElementById('readAloudBtn');
+    
+    // Se já está a tocar, pausar
+    if (isPlaying && currentAudio) {
+        currentAudio.pause();
+        isPlaying = false;
+        btn.classList.remove('playing');
+        btn.textContent = 'Ler em Voz Alta';
+        return;
+    }
+    
+    // Se está pausado, retomar
+    if (currentAudio && !isPlaying) {
+        currentAudio.play();
+        isPlaying = true;
+        btn.classList.add('playing');
+        btn.textContent = 'Pausar';
+        return;
+    }
+    
+    // Novo áudio - carregar e tocar
+    const audioFile = `cap${currentChapter}.m4a`; 
+    
+    // Criar novo elemento de áudio
+    currentAudio = new Audio(audioFile);
+    
+    // Quando o áudio começar
+    currentAudio.onplay = function() {
+        isPlaying = true;
+        btn.classList.add('playing');
+        btn.textContent = 'Pausar';
+    };
+    
+    // Quando o áudio pausar
+    currentAudio.onpause = function() {
+        isPlaying = false;
+        btn.classList.remove('playing');
+        btn.textContent = 'Ler em Voz Alta';
+    };
+    
+    // Quando o áudio terminar
+    currentAudio.onended = function() {
+        isPlaying = false;
+        btn.classList.remove('playing');
+        btn.textContent = 'Ler em Voz Alta';
+        currentAudio = null;
+    };
+    
+    // Tratar erros (ficheiro não encontrado)
+    currentAudio.onerror = function() {
+        alert(`Áudio não encontrado: ${audioFile}`);
+        isPlaying = false;
+        btn.classList.remove('playing');
+        btn.textContent = 'Ler em Voz Alta';
+        currentAudio = null;
+    };
+    
+    // Tocar o áudio
+    currentAudio.play();
+}
+
+// Event listener para o botão
+document.getElementById('readAloudBtn').addEventListener('click', toggleReadAloud);
 
 function toggleHelp(forceState = null) {
     if (forceState === null) {
