@@ -3,6 +3,22 @@
    Defines every word once.
    ========================================= */
 const vocabularyLibrary = {
+  // --- PALAVRAS COMUNS ESSENCIAIS ---
+    "agora":    { type: "advérbio",    def: "Neste momento, no presente",              eng: "now" },
+    "cedo":     { type: "advérbio",    def: "Antes do tempo previsto",                 eng: "early" },
+    "ficar":    { type: "verbo",       def: "Verbo FICAR — permanecer, tornar-se",     eng: "to stay / to become" },
+    "chegar":   { type: "verbo",       def: "Verbo CHEGAR — alcançar um lugar",        eng: "to arrive / to reach" },
+    "precisar": { type: "verbo",       def: "Verbo PRECISAR — ter necessidade de",     eng: "to need" },
+    "gostar":   { type: "verbo",       def: "Verbo GOSTAR — sentir prazer em",         eng: "to like / to enjoy" },
+    "existir":  { type: "verbo",       def: "Verbo EXISTIR — ter existência real",     eng: "to exist" },
+    "ganhar":   { type: "verbo",       def: "Verbo GANHAR — obter, vencer",            eng: "to win / to earn / to gain" },
+    "querer":   { type: "verbo",       def: "Verbo QUERER — desejar, ter vontade de",  eng: "to want / to wish" },
+    "trazer":   { type: "verbo",       def: "Verbo TRAZER — conduzir consigo",         eng: "to bring" },
+    "usar":     { type: "verbo",       def: "Verbo USAR — utilizar, empregar",         eng: "to use" },
+    "sair":     { type: "verbo",       def: "Verbo SAIR — partir, deixar um lugar",    eng: "to leave / to go out" },
+    "vir":      { type: "verbo",       def: "Verbo VIR — deslocar-se até aqui",        eng: "to come" },
+    "poder":    { type: "verbo",       def: "Verbo PODER — ter capacidade ou permissão", eng: "to be able to / can" },
+
   //PALAVRAS QUE ESCAPARAM
     "foram": { type: "verbo", def: "Verbo SER/IR no pretérito perfeito (plural)", eng: "were/went" },
     "mim": { type: "pronome", def: "Pronome pessoal (após preposição)", eng: "me" },
@@ -3421,6 +3437,245 @@ const vocabularyLibrary = {
 };
 
 /* =========================================
+   1b. EXTERNAL DICTIONARY
+   Loaded via <script src="dictionary.js"> in HTML.
+   Generate it once with: node build-dictionary.js
+   Works with file://, GitHub Pages, and any server.
+   Falls back gracefully if the file is absent.
+   ========================================= */
+
+let externalDictionary = null;
+
+function loadExternalDictionary() {
+    if (window.PORTUGUESE_DICTIONARY) {
+        externalDictionary = window.PORTUGUESE_DICTIONARY;
+        console.log(`[Dictionary] ${Object.keys(externalDictionary).length.toLocaleString()} words loaded`);
+    } else {
+        console.info('[Dictionary] Not found — morphological fallback active for unknown words.');
+        console.info('  For full translations run:  node build-dictionary.js');
+    }
+}
+
+/* =========================================
+   1c. PORTUGUESE STEMMER
+   Reduces inflected words to their base form
+   and validates against the loaded dictionary.
+   Uses a lookup-first approach: tries multiple
+   candidate stems and returns the first one
+   that actually exists in the dictionary.
+   ========================================= */
+
+function stemPortuguese(word) {
+    // Rules: [suffix_to_remove, replacement_to_append]
+    // Ordered longest-first so more specific rules win.
+    const rules = [
+        // ── Adverbs ──────────────────────────────────────────────────────
+        ['mente', ''],          // rapidamente → rápido
+
+        // ── Verb conjugations (longest first) ────────────────────────────
+        ['aríamos', 'ar'], ['eríamos', 'er'], ['iríamos', 'ir'],
+        ['áramos',  'ar'], ['éramos',  'er'], ['íramos',  'ir'],
+        ['ávamos',  'ar'], ['íamos',   'er'], ['íamos',   'ir'],
+        ['ássemos', 'ar'], ['êssemos', 'er'], ['íssemos', 'ir'],
+        ['ásseis',  'ar'], ['êsseis',  'er'], ['ísseis',  'ir'],
+        ['aremos',  'ar'], ['eremos',  'er'], ['iremos',  'ir'],
+        ['ariam',   'ar'], ['eriam',   'er'], ['iriam',   'ir'],
+        ['areis',   'ar'], ['ereis',   'er'], ['ireis',   'ir'],
+        ['arias',   'ar'], ['erias',   'er'], ['irias',   'ir'],
+        ['assem',   'ar'], ['essem',   'er'], ['issem',   'ir'],
+        ['asses',   'ar'], ['esses',   'er'], ['isses',   'ir'],
+        ['arão',    'ar'], ['erão',    'er'], ['irão',    'ir'],
+        ['arei',    'ar'], ['erei',    'er'], ['irei',    'ir'],
+        ['aram',    'ar'], ['eram',    'er'], ['iram',    'ir'],
+        ['avam',    'ar'],
+        ['aste',    'ar'], ['este',    'er'], ['iste',    'ir'],
+        ['asse',    'ar'], ['esse',    'er'], ['isse',    'ir'],
+        ['aria',    'ar'], ['eria',    'er'], ['iria',    'ir'],
+        ['ados',    'ar'], ['adas',    'ar'], ['idos',    'ir'], ['idas',    'ir'],
+        ['ando',    'ar'], ['endo',    'er'], ['indo',    'ir'],
+        ['emos',    'er'], ['imos',    'ir'],
+        ['ará',     'ar'], ['erá',     'er'], ['irá',     'ir'],
+        ['arás',    'ar'], ['erás',    'er'], ['irás',    'ir'],
+        ['ava',     'ar'], ['ara',     'ar'],
+        ['ado',     'ar'], ['ada',     'ar'], ['ido',     'ir'], ['ida',     'ir'],
+        ['iam',     'er'], ['iam',     'ir'],
+        ['ias',     'er'], ['ias',     'ir'],
+        ['eis',     'er'],
+        ['ou',      'ar'], ['eu',      'er'], ['iu',      'ir'],
+        ['ia',      'er'], ['ia',      'ir'],
+        ['ei',      'ar'],
+        ['am',      'ar'], ['em',      'er'],
+
+        // ── Plurals ───────────────────────────────────────────────────────
+        ['ções',    'ção'], ['sões',   'são'],
+        ['ões',     'ão'],  ['ães',    'ão'],
+        ['ais',     'al'],  ['éis',    'el'],
+        ['eis',     'el'],  ['óis',    'ol'],
+        ['is',      'il'],  ['les',    'l'],
+        ['res',     'r'],   ['zes',    'z'],
+        ['ns',      'm'],
+
+        // ── Superlatives & diminutives ────────────────────────────────────
+        ['íssimos', ''],   ['íssimas', ''],
+        ['íssimo',  ''],   ['íssima',  ''],
+        ['zínhos',  ''],   ['zinhas',  ''],
+        ['zinhos',  ''],   ['zinha',   ''],
+        ['inhos',   ''],   ['inhas',   ''],
+        ['inho',    ''],   ['inha',    ''],
+
+        // ── Simple plural/gender endings (last resort) ────────────────────
+        ['es',      ''],
+        ['as',      'a'],
+        ['os',      'o'],
+        ['s',       ''],
+    ];
+
+    for (const [suffix, replacement] of rules) {
+        if (!word.endsWith(suffix)) continue;
+        const minLen = 2;
+        if (word.length - suffix.length < minLen) continue;
+
+        const stem = word.slice(0, -suffix.length);
+
+        // Primary candidate: stem + replacement
+        const c1 = stem + replacement;
+        if (c1.length >= 2 && vocabularyLibrary[c1])          return c1;
+        if (c1.length >= 2 && externalDictionary?.[c1])       return c1;
+
+        // For verb-related rules: also try all three infinitive endings
+        if (['ar', 'er', 'ir', ''].includes(replacement)) {
+            for (const inf of ['ar', 'er', 'ir']) {
+                const c = stem + inf;
+                if (c.length >= 3 && vocabularyLibrary[c])    return c;
+                if (c.length >= 3 && externalDictionary?.[c]) return c;
+            }
+        }
+
+        // For noun/adjective rules: try both genders and base form
+        if (['a', 'o', 'e', ''].includes(replacement)) {
+            for (const end of ['a', 'o', 'e', '']) {
+                const c = stem + end;
+                if (c.length >= 2 && vocabularyLibrary[c])    return c;
+                if (c.length >= 2 && externalDictionary?.[c]) return c;
+            }
+        }
+    }
+
+    return null;
+}
+
+/* =========================================
+   1d. MORPHOLOGICAL FALLBACK
+   Classifies any Portuguese word by its ending.
+   Works with zero dictionary — every word gets
+   at least a grammatical type and form description.
+   ========================================= */
+
+function morphologicalFallback(word) {
+    const w = word.toLowerCase();
+
+    // ── Gerunds ──────────────────────────────────────────────────────────────
+    if (w.endsWith('ando')) return { type: 'verbo', def: 'gerúndio', eng: 'verb (-ing form)' };
+    if (w.endsWith('endo')) return { type: 'verbo', def: 'gerúndio', eng: 'verb (-ing form)' };
+    if (w.endsWith('indo')) return { type: 'verbo', def: 'gerúndio', eng: 'verb (-ing form)' };
+
+    // ── Past tense plural (pretérito perfeito) ────────────────────────────────
+    if (w.endsWith('aram')) return { type: 'verbo', def: 'pretérito perfeito (eles/elas)', eng: 'past tense: they [-ar verb]' };
+    if (w.endsWith('eram')) return { type: 'verbo', def: 'pretérito perfeito (eles/elas)', eng: 'past tense: they [-er verb]' };
+    if (w.endsWith('iram')) return { type: 'verbo', def: 'pretérito perfeito (eles/elas)', eng: 'past tense: they [-ir verb]' };
+
+    // ── Imperfect plural ─────────────────────────────────────────────────────
+    if (w.endsWith('avam')) return { type: 'verbo', def: 'pretérito imperfeito (eles/elas)', eng: 'imperfect: they [-ar verb]' };
+    if (w.endsWith('iam'))  return { type: 'verbo', def: 'pretérito imperfeito (eles/elas)', eng: 'imperfect: they [-er/-ir verb]' };
+
+    // ── Past tense singular ───────────────────────────────────────────────────
+    if (w.endsWith('ou'))   return { type: 'verbo', def: 'pretérito perfeito (ele/ela)', eng: 'past tense: he/she [-ar verb]' };
+    if (w.endsWith('iu'))   return { type: 'verbo', def: 'pretérito perfeito (ele/ela)', eng: 'past tense: he/she [-ir verb]' };
+
+    // ── Future ───────────────────────────────────────────────────────────────
+    if (w.endsWith('arão')) return { type: 'verbo', def: 'futuro (eles/elas)', eng: 'future: they [-ar]' };
+    if (w.endsWith('erão')) return { type: 'verbo', def: 'futuro (eles/elas)', eng: 'future: they [-er]' };
+    if (w.endsWith('irão')) return { type: 'verbo', def: 'futuro (eles/elas)', eng: 'future: they [-ir]' };
+    if (w.endsWith('ará'))  return { type: 'verbo', def: 'futuro (ele/ela)', eng: 'future: he/she [-ar]' };
+    if (w.endsWith('erá'))  return { type: 'verbo', def: 'futuro (ele/ela)', eng: 'future: he/she [-er]' };
+    if (w.endsWith('irá'))  return { type: 'verbo', def: 'futuro (ele/ela)', eng: 'future: he/she [-ir]' };
+
+    // ── Conditional ──────────────────────────────────────────────────────────
+    if (w.endsWith('aria')) return { type: 'verbo', def: 'condicional', eng: 'conditional [-ar verb]' };
+    if (w.endsWith('eria')) return { type: 'verbo', def: 'condicional', eng: 'conditional [-er verb]' };
+    if (w.endsWith('iria')) return { type: 'verbo', def: 'condicional', eng: 'conditional [-ir verb]' };
+
+    // ── Subjunctive imperfect ─────────────────────────────────────────────────
+    if (w.endsWith('asse')) return { type: 'verbo', def: 'pretérito imperfeito do conjuntivo', eng: 'subjunctive [-ar]' };
+    if (w.endsWith('esse')) return { type: 'verbo', def: 'pretérito imperfeito do conjuntivo', eng: 'subjunctive [-er]' };
+    if (w.endsWith('isse')) return { type: 'verbo', def: 'pretérito imperfeito do conjuntivo', eng: 'subjunctive [-ir]' };
+
+    // ── Past participle ───────────────────────────────────────────────────────
+    if (w.endsWith('ado') || w.endsWith('ada')) return { type: 'verbo', def: 'particípio passado', eng: 'past participle [-ar]' };
+    if (w.endsWith('ido') || w.endsWith('ida')) return { type: 'verbo', def: 'particípio passado', eng: 'past participle [-er/-ir]' };
+
+    // ── Adverbs ───────────────────────────────────────────────────────────────
+    if (w.endsWith('mente')) return { type: 'advérbio', def: 'advérbio', eng: 'adverb (-ly)' };
+
+    // ── Nouns with unmistakable endings ──────────────────────────────────────
+    if (w.endsWith('ções')) return { type: 'substantivo', def: 'substantivo feminino plural', eng: 'nouns (-tions)' };
+    if (w.endsWith('ção'))  return { type: 'substantivo', def: 'substantivo feminino', eng: 'noun (-tion)' };
+    if (w.endsWith('sões')) return { type: 'substantivo', def: 'substantivo feminino plural', eng: 'nouns (-sions)' };
+    if (w.endsWith('são') && w.length > 4) return { type: 'substantivo', def: 'substantivo feminino', eng: 'noun (-sion)' };
+    if (w.endsWith('dade')) return { type: 'substantivo', def: 'substantivo feminino', eng: 'noun (-ity/-ness)' };
+    if (w.endsWith('ismo')) return { type: 'substantivo', def: 'substantivo masculino', eng: 'noun (-ism)' };
+    if (w.endsWith('ista')) return { type: 'substantivo', def: 'substantivo', eng: 'noun/adj (-ist)' };
+    if (w.endsWith('agem')) return { type: 'substantivo', def: 'substantivo feminino', eng: 'noun (-age)' };
+    if (w.endsWith('eiro')) return { type: 'substantivo', def: 'substantivo/adjetivo', eng: 'noun/adj (-eiro)' };
+    if (w.endsWith('eira')) return { type: 'substantivo', def: 'substantivo feminino', eng: 'noun (-eira)' };
+    if (w.endsWith('ura'))  return { type: 'substantivo', def: 'substantivo feminino', eng: 'noun (-ure/-ura)' };
+
+    // ── Adjectives with clear endings ────────────────────────────────────────
+    if (w.endsWith('ável')) return { type: 'adjetivo', def: 'adjetivo', eng: 'adjective (-able)' };
+    if (w.endsWith('ível')) return { type: 'adjetivo', def: 'adjetivo', eng: 'adjective (-ible)' };
+    if (w.endsWith('oso') || w.endsWith('osa')) return { type: 'adjetivo', def: 'adjetivo', eng: 'adjective (-ous)' };
+    if (w.endsWith('ivo') || w.endsWith('iva')) return { type: 'adjetivo', def: 'adjetivo', eng: 'adjective (-ive)' };
+
+    // ── Infinitives (min length to avoid "par", "ver" false positives) ────────
+    if (w.length > 4 && w.endsWith('ar')) return { type: 'verbo', def: 'verbo infinitivo (-ar)', eng: 'verb (-ar infinitive)' };
+    if (w.length > 4 && w.endsWith('er')) return { type: 'verbo', def: 'verbo infinitivo (-er)', eng: 'verb (-er infinitive)' };
+    if (w.length > 4 && w.endsWith('ir')) return { type: 'verbo', def: 'verbo infinitivo (-ir)', eng: 'verb (-ir infinitive)' };
+
+    // ── No morphological pattern — show neutral placeholder ──────────────────
+    return { type: 'palavra', def: 'Palavra portuguesa', eng: 'word (translation unavailable)' };
+}
+
+/* =========================================
+   1e. UNIFIED WORD LOOKUP
+   Priority: curated library → external dict
+             → stemmer → morphological fallback
+   ========================================= */
+
+function lookupWord(word) {
+    // 1. Hand-curated vocabulary (highest priority – has Portuguese definitions)
+    if (vocabularyLibrary[word]) return vocabularyLibrary[word];
+
+    // 2. External dictionary – exact match
+    if (externalDictionary?.[word]) {
+        const e = externalDictionary[word];
+        return { type: e.type, def: e.eng, eng: e.eng };
+    }
+
+    // 3. Stemmer – reduces inflected forms to base (works without external dict)
+    const base = stemPortuguese(word);
+    if (base) {
+        if (vocabularyLibrary[base]) return vocabularyLibrary[base];
+        if (externalDictionary?.[base]) {
+            const e = externalDictionary[base];
+            return { type: e.type, def: `(${base}) ${e.eng}`, eng: e.eng };
+        }
+    }
+
+    // 4. Morphological fallback – classifies ANY Portuguese word by its ending
+    return morphologicalFallback(word);
+}
+
+/* =========================================
    2. THE RAW CHAPTERS (The Content)
    Raw text strings. Easy to edit.
    ========================================= */
@@ -4787,8 +5042,8 @@ function processText(text) {
         
         // 4. Handle Words
         const lowerKey = token.toLowerCase();
-        // Look up word in library, or use default if not found
-        const definition = vocabularyLibrary[lowerKey] || vocabularyLibrary["_default"];
+        // Look up word in library, then external dictionary, then stemmer
+        const definition = lookupWord(lowerKey);
         
         return {
             word: token, // Preserve original casing (Uma vs uma)
@@ -5091,3 +5346,9 @@ function updateStats(wordsList = null) {
 
 // Inicializar
 loadChapter(1);
+
+// Load comprehensive dictionary in the background.
+// First visit: fetches dictionary.json (~5-8 MB, takes a few seconds).
+// Subsequent visits: instant from localStorage cache.
+// If dictionary.json is absent the app still works with the built-in vocabulary.
+loadExternalDictionary();
